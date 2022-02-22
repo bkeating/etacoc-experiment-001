@@ -140,7 +140,7 @@
           on:click={handleOpenMenu}
           class="relative flex items-center justify-center w-10 h-10 m-0 mx-auto mb-3 bg-transparent top-2"
         >
-          <Logo fillColor="white" />
+          <Logo fillColor="#ffffff" />
         </button>
 
         <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center">
@@ -199,9 +199,6 @@
 							The goal of this experiment is to interact and explore the East Troy area from a geographical
 							perspective. There will be layers of different meta to show/hide as well as community curated
 							contributions. Geoloco information for East Troy, by East Troy.
-						</p>
-						<p class="mt-6 text-xs">
-							This is an open source project. It's source code and developer resources can be found on GitHub.
 						</p>
 					</div>
 
