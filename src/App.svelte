@@ -17,12 +17,13 @@
   let menuIsOpen = false;
   let isDarkMode = false;
   let showSplash = true;
+  let apiKey = 'pk.eyJ1IjoiZmxvd3Bva2UiLCJhIjoiY2t6cmZoNDhoMDBidTJxcGtwemZtbnBubSJ9.rZdMVSfrkFcTmaqFt7TW5A';
 
   $: mapStyle = 'mapbox://styles/mapbox/outdoors-v11';
   $: lng = -88.4051;
   $: lat = 42.7853;
-  $: pitch = 12;
-  $: bearing = -17;
+  $: pitch = 0;
+  $: bearing = 0;
 
   let easttroyCenter = [-88.4051, 42.7853];
   let ldsbbq = [42.79068004431915, -88.39012856713265];
@@ -49,11 +50,25 @@
   }
 
   onMount(() => {
-    mapComponent?.flyTo({ center: [lng, lat], zoom: 14, bearing: 0, pitch: 45, speed: 0.8, curve: 0.5 });
+
+    setTimeout(() => {
+      mapComponent?.flyTo({ center: [lng, lat], zoom: 14, bearing: 0, pitch: 60, speed: 0.3, curve: 1 });
+    }, 2000);
+
+    const m = mapComponent.getMap();
+
+    // m.on('load', () => {
+    //   console.log('LOADED!')
+    // });
+
     let map = mapComponent?.getMap();
     const ne = [42.84103774367695, -88.49734216528779];
     const sw = [42.70040771258098, -88.2800188683067];
     map?.getMap().setMaxBounds([sw, ne]);
+
+    setTimeout(() => {
+      rotateCamera(0);
+    }, 4000);
   });
 
   const handleOpenMenu = () => {
@@ -61,7 +76,7 @@
     showSplash = false;
   };
   const handleNightLife = () => {
-    mapComponent?.flyTo({ center: easttroyCenter, zoom: 15, pitch: 0, bearing: 0, speed: 1, curve: 1 }); // starting point
+    mapComponent?.flyTo({ center: easttroyCenter, zoom: 15, pitch: 0, bearing: 0, speed: 2, curve: 1 }); // starting point
     handleAppearanceMode(true); // make it dark
   };
 
@@ -69,7 +84,7 @@
     let m = mapComponent?.getMap();
     // clamp the rotation between 0 -360 degrees
     // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
-    m.rotateTo((timestamp / 100) % 360, { duration: 0 });
+    m.rotateTo((timestamp / 600) % 360, { essential: true });
     // Request the next frame of the animation.
     requestAnimationFrame(rotateCamera);
   }
@@ -121,11 +136,6 @@
           essential: true,
         });
 
-        setTimeout(() => {
-          rotateCamera(0);
-          currentFocusName = label;
-        }, 3000);
-
         // .then(() => {
         // 	if (rotate) {
         // 		rotate(0)
@@ -153,6 +163,11 @@
     }
     isDarkMode ? (style = 'mapbox://styles/mapbox/dark-v10') : (style = 'mapbox://styles/mapbox/outdoors-v11');
     m.setStyle(style);
+  };
+
+  const handleRecenter = (e) => {
+    // (e) => console.log(e.detail.center.lat, e.detail.center.lng
+
   };
 
   // update `money` with `productionPerTick` and set a timeout to call itself after `tickSpeed` ms
@@ -302,9 +317,9 @@
   {/if} -->
 
   <Map
-    accessToken="pk.eyJ1IjoiZmxvd3Bva2UiLCJhIjoiY2t6cmZoNDhoMDBidTJxcGtwemZtbnBubSJ9.rZdMVSfrkFcTmaqFt7TW5A"
+    accessToken={apiKey}
     bind:this={mapComponent}
-    on:recentre={(e) => console.log(e.detail.center.lat, e.detail.center.lng)}
+    on:recentre={handleRecenter}
     options={{ scrollZoom: false, pitch: pitch, bearing: bearing }}
     center={easttroyCenter}
     zoom={13}
