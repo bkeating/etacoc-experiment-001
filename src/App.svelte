@@ -18,6 +18,7 @@
   let isDarkMode = false;
   let showSplash = true;
   let apiKey = 'pk.eyJ1IjoiZmxvd3Bva2UiLCJhIjoiY2t6cmZoNDhoMDBidTJxcGtwemZtbnBubSJ9.rZdMVSfrkFcTmaqFt7TW5A';
+  let isRotating = true;
 
   $: mapStyle = 'mapbox://styles/mapbox/outdoors-v11';
   $: lng = -88.4051;
@@ -74,6 +75,7 @@
   const handleOpenMenu = () => {
     menuIsOpen = !menuIsOpen;
     showSplash = false;
+    isRotating = false;
   };
   const handleNightLife = () => {
     mapComponent?.flyTo({ center: easttroyCenter, zoom: 15, pitch: 0, bearing: 0, speed: 2, curve: 1 }); // starting point
@@ -82,11 +84,13 @@
 
   function rotateCamera(timestamp) {
     let m = mapComponent?.getMap();
-    // clamp the rotation between 0 -360 degrees
-    // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
-    m.rotateTo((timestamp / 600) % 360, { essential: true });
-    // Request the next frame of the animation.
-    requestAnimationFrame(rotateCamera);
+    if (isRotating) {
+      // clamp the rotation between 0 -360 degrees
+      // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
+      m.rotateTo((timestamp / 600) % 360, { essential: true });
+      // Request the next frame of the animation.
+      requestAnimationFrame(rotateCamera);
+    }
   }
 
   const handleCruiseNight = () => {
