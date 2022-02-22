@@ -162,7 +162,7 @@
   {#if showSplash}
     <div class="absolute top-0 left-0 z-50 w-screen h-screen bg-white opacity-70" transition:fade>
       <div class="flex items-center justify-center w-full h-full">
-        <img src="/east-troy-splash.png" alt="East Troy Maps" class="relative -top-40" style="animation: fadein 3s;" />
+        <img src="/east-troy-splash.png" alt="East Troy Maps" class="relative -top-40" style="max-width: 73%; animation: fadein 3s;" />
       </div>
     </div>
   {/if}
@@ -264,12 +264,12 @@
 
 
 
-            <h3 class="mt-3 mb-2 text-xs text-white uppercase opacity-50">Restaurants</h3>
+            <!-- <h3 class="mt-3 mb-2 text-xs text-white uppercase opacity-50">Restaurants</h3> -->
 
-            <ul class="space-y-3 text-white">
+            <!-- <ul class="space-y-3 text-white">
               <li><a href="/">2894 On Main</a></li>
               <li><a href="/">LD's BBQ</a></li>
-            </ul>
+            </ul> -->
 
             <!-- <div class="flex items-center my-3 text-white" on:click={() => (leftMenuIsOpen = !leftMenuIsOpen)}>
               <div class="w-6 mr-1 text-white">
