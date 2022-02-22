@@ -127,7 +127,14 @@
 
 </script>
 
+
 <div class="relative w-screen h-full select-none">
+  <div class="absolute top-0 left-0 z-50 w-screen h-screen bg-white opacity-70">
+    <div class="flex items-center justify-center w-full h-full">
+      <img src="/east-troy-splash.png" alt="East Troy Maps" class="relative -top-40" />
+    </div>
+  </div>
+
   <div class="absolute transition-all duration-300 left-0 z-50 w-full {menuIsOpen ? 'bottom-0' : 'bottom-4'}">
     <div class="w-full max-w-3xl mx-auto text-center">
       <div
@@ -140,7 +147,7 @@
           on:click={handleOpenMenu}
           class="relative flex items-center justify-center w-10 h-10 m-0 mx-auto mb-3 bg-transparent top-2"
         >
-          <Logo fillColor="#ffffff" />
+          <Logo />
         </button>
 
         <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center">
