@@ -2,29 +2,39 @@
   import { onMount } from 'svelte';
   import { fly, fade } from 'svelte/transition';
   import { Map, controls } from '@beyonk/svelte-mapbox';
-  // import GiFoodTruck from 'svelte-icons/gi/GiFoodTruck.svelte';
+  import GiFoodTruck from 'svelte-icons/gi/GiFoodTruck.svelte';
   // import FaBeer from 'svelte-icons/fa/FaBeer.svelte';
   // import FaUtensils from 'svelte-icons/fa/FaUtensils.svelte';
   import IoIosMoon from 'svelte-icons/io/IoIosMoon.svelte';
   import IoIosSunny from 'svelte-icons/io/IoIosSunny.svelte';
-  // import IoIosCar from 'svelte-icons/io/IoIosCar.svelte';
+  import IoIosCar from 'svelte-icons/io/IoIosCar.svelte';
+  import FaBicycle from 'svelte-icons/fa/FaBicycle.svelte';
+  import MdRefresh from 'svelte-icons/md/MdRefresh.svelte';
   // import FaMapMarkedAlt from 'svelte-icons/fa/FaMapMarkedAlt.svelte';
 
+  import SplashType from './SplashType.svelte';
   import Logo from './Logo.svelte';
 
-  import { appearance, showDock, showDrawer, showSplash, currentDrawerSlug, mapStyle } from './store';
+  import { appearance, showDock, showDrawer, showSplash, currentDrawerSlug, mapStyle, isRotating } from './store';
 
   const { GeolocateControl, NavigationControl, ScaleControl } = controls;
   let mapComponent;
   let apiKey = 'pk.eyJ1IjoiZmxvd3Bva2UiLCJhIjoiY2t6cmZoNDhoMDBidTJxcGtwemZtbnBubSJ9.rZdMVSfrkFcTmaqFt7TW5A';
-  let isRotating = true;
   let showLogo = false;
   let introBase = 3000;
+  let splashTypeColor = 'white';
 
   $: lng = -88.4051;
   $: lat = 42.7853;
   $: pitch = 0;
   $: bearing = 0;
+
+  let mainMenu = [
+    { label: 'Food', slug: 'food' },
+    { label: 'Shopping', slug: 'shopping' },
+    { label: 'Nightlife', slug: 'nightlife' },
+    { label: 'Toybox', slug: 'toybox' },
+  ];
 
   // Define this to handle `eventname` events - see [GeoLocate Events](https://docs.mapbox.com/mapbox-gl-js/api/markers/#geolocatecontrol-events)
   function eventHandler(e) {
@@ -35,61 +45,75 @@
 
   const easeOutQuint = (t) => 1 - Math.pow(1 - t, 5);
   const easeInCubic = (t) => t * t * t;
+  const easeInQuad = (t) => t * t;
+  const linear = (t) => t;
+
+  const easeInOutCirc = (t) => {
+    return t < 0.5
+      ? (1 - Math.sqrt(1 - Math.pow(2 * t, 2))) / 2
+      : (Math.sqrt(1 - Math.pow(-2 * t + 2, 2)) + 1) / 2;
+  };
 
   onMount(() => {
+    //   let map = mapComponent?.getMap();
+    //   const ne = [42.84103774367695, -88.49734216528779];
+    //   const sw = [42.70040771258098, -88.2800188683067];
+    //   map?.getMap().setMaxBounds([sw.reverse(), ne.reverse()]);
+
     // This is for returning users whom turned on dark mode in a previous session.
     if ($appearance === 'dark') {
       document.documentElement.classList.add('dark');
-    }
+    };
 
     // Swoop down on the sqaure, fade in the logo and reveal the Dock.
     setTimeout(() => {
       mapComponent?.flyTo({ center: [lng, lat], zoom: 15, bearing: 0, pitch: 60, speed: 0.3, curve: 0.4 });
     }, introBase);
-    setTimeout(() => (showLogo = true), introBase + 5000);
-    setTimeout(() => showDock.set(true), introBase + 13000);
+    setTimeout(() => (showLogo = true), introBase + 5500);
+    setTimeout(() => showDock.set(true), introBase + 15000);
 
-    let map = mapComponent?.getMap();
-    const ne = [42.84103774367695, -88.49734216528779];
-    const sw = [42.70040771258098, -88.2800188683067];
-    map?.getMap().setMaxBounds([sw.reverse(), ne.reverse()]);
 
     setTimeout(() => {
+      isRotating.set(true)
       rotateCamera(0);
-    }, introBase + 8000);
+    }, introBase + 11000);
 
-    setTimeout(() => {
-      setMapStyle('mapbox://styles/mapbox/outdoors-v11');
-    }, introBase + 30000);
+      // setTimeout(() => {
+      //   setTimeout(() => {
+      //     splashTypeColor = '#000';
+      //   }, 500);
+      // }, introBase + 30000);
   });
 
   const handleOpenMenu = () => {
     showDrawer.update((n) => !n);
-    setMapStyle('mapbox://styles/mapbox/outdoors-v11');
-    showSplash.set(false);
-    isRotating = false;
   };
+
+  const handleMainMenuClick = (label) => {
+    showSplash.set(false);
+    currentDrawerSlug.update((n) => (n === label ? '' : label));
+  };
+
   const handleNightLife = () => {
     setMapStyle('mapbox://styles/mapbox/dark-v10');
-    mapComponent?.flyTo({ center: [-88.4051, 42.7853], zoom: 14, pitch: 30, bearing: 0, speed: 0.5, curve: 1.2 }); // starting point
     appearance.set('dark');
-    document.documentElement.classList.add('dark');
-    localStorage.theme = 'dark';
+    currentDrawerSlug.set('nightlife');
+    mapComponent?.flyTo({ center: [-88.4051, 42.7853], zoom: 14, pitch: 30, bearing: 0, speed: 0.5, curve: 1.2 }); // starting point
   };
 
-  function rotateCamera(timestamp) {
+  const handleToybox = () => {
+    currentDrawerSlug.update((n) => (n === 'toybox' ? '' : 'toybox'));
+  };
+
+  $: rotateCamera = (timestamp) => {
     let m = mapComponent?.getMap();
-    if (isRotating) {
-      // clamp the rotation between 0 -360 degrees
-      // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
+    if ($isRotating) {
       m.rotateTo((timestamp / 700) % 360);
-      // Request the next frame of the animation.
-      requestAnimationFrame(rotateCamera, { easing: easeInCubic()});
-    }
-  }
+      requestAnimationFrame(rotateCamera, { easing: easeInOutCirc });
+    };
+  };
 
   const handleCruiseNight = () => {
-    let currentStep = 0;
     let tourPoints = [
       {
         label: "Gus's Drive-in",
@@ -107,7 +131,7 @@
         bearing: 0,
         pitch: 0,
         rotate: true,
-        duration: 80000,
+        duration: 10000,
       },
       {
         label: 'East Troy Airport',
@@ -182,17 +206,20 @@
 <div class="relative w-screen h-full select-none">
   {#if $showSplash}
     <div
-      class="absolute top-0 left-0 z-50 w-screen h-screen bg-white opacity-50"
-      in:fade|local={{ duration: 600, delay: 300 }}
+      class="absolute top-0 left-0 z-50 w-screen h-screen bg-[rgba(0,0,0,0.1)]"
+      out:fade|local={{ duration: 1000, easing: easeOutQuint }}
     >
       {#if showLogo}
-        <div class="flex items-center justify-center w-full h-full" transition:fade|local={{ duration: 2000 }}>
-          <img
-            src="/east-troy-splash.png"
-            alt="East Troy Maps"
-            class="relative -top-40"
-            style="max-width: 73%; animation: fadein 2s;"
-          />
+        <div
+          class="flex items-center justify-center w-full h-full"
+          in:fly|local={{ y: -80, duration: 3000 }}
+          out:fly={{ y: 10, duration: 2000 }}
+        >
+          <div class="mx-auto" style="width: 100%; max-width: 76%; min-height: 400px;">
+            <div class="relative mx-auto" style="width: 100%; min-width: 200px; max-width: 500px; animation: fadein 2s; top: -15rem;">
+              <SplashType fillColor={splashTypeColor} />
+            </div>
+          </div>
         </div>
       {/if}
     </div>
@@ -223,6 +250,19 @@
           <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center" />
 
           <div class="absolute top-0 right-2 h-[55px] p-2  flex items-center">
+              <button
+                class="flex items-center mr-3 text-xs text-white"
+                title="Orbit"
+                on:click={() => {isRotating.update(n => n = !$isRotating); rotateCamera(0); }}
+                in:fly={{ x: 80, duration: 300 }}
+                out:fly={{ y: 80, duration: 300 }}
+              >
+                <div class="w-6 h-6 ml-1">
+                  <div class="text-blue-300 dark:text-gray-500 {$isRotating ? 'rotate-spin' : ''}">
+                    <MdRefresh />
+                  </div>
+                </div>
+              </button>
             {#if !$showSplash}
               <button
                 class="flex items-center mr-3 text-xs text-white"
@@ -245,14 +285,12 @@
           {#if $showDrawer}
             <div
               in:fly={{ y: 60, duration: 500, delay: 100 }}
-              out:fly={{ y: 60, duration: 200 }}
+              out:fly|local={{ y: 60, duration: 200 }}
               class="w-full h-full px-3 py-3 pb-32 overflow-x-hidden overflow-y-scroll text-left"
             >
-              {#if $currentDrawerSlug === ''}
+              <div class="transition-all overflow-hidden {$currentDrawerSlug === '' ? 'h-[115px]' : 'h-0'}">
                 <div
-                  in:fly={{ y: -180, duration: 100 }}
-                  out:fly={{ y: -180, duration: 100 }}
-                  class="p-3 m-1 mb-6 text-sm text-blue-100 border border-blue-400 rounded dark:text-gray-500 dark:border-gray-700"
+                  class="p-3 m-1 text-sm text-blue-100 border border-blue-400 rounded dark:text-gray-500 dark:border-gray-700 transition-color"
                 >
                   <p>
                     Welcome to East Troy Maps! This is an innovation experiment in exploring the East Troy area through
@@ -260,87 +298,84 @@
                     contribute your own content. This is a work in progress.
                   </p>
                 </div>
+              </div>
+
+              <div class="sticky top-0 z-50 flex items-center flex-auto w-full pb-2 mt-3 transition-all duration-500 bg-blue-500 justify-items-stretch dark:bg-gray-800">
+                {#each mainMenu as { label, slug }}
+                  <button
+                    class="mainmenu {$currentDrawerSlug === slug ? 'active' : 'inactive'}"
+                    on:mousedown={() => handleMainMenuClick(slug)}
+                  >
+                    {label}
+                  </button>
+                {/each}
+              </div>
+
+              {#if $currentDrawerSlug === 'shopping'}
+                <div class="px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
+
+                  <h2 class="text-3xl text-white">Shopping</h2>
+                  <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
+                    Do business with the finest local businesses.
+                  </p>
+
+                </div>
               {/if}
 
-              <!-- <h3 class="mb-2 text-xs text-white uppercase opacity-50">Demos</h3>
-            <button on:click={handleGoToEastTroy} class="px-6 py-2 text-sm text-white bg-blue-600 rounded "
-              >Village Square Park</button
-            >
-            <button
-              on:click={() => mapComponent?.flyTo({ center: [ldsbbq[1], ldsbbq[0]], zoom: 16 })}
-              class="px-6 py-2 text-sm text-white bg-blue-600 rounded ">LD's BBQ</button
-            > -->
+              {#if $currentDrawerSlug === 'nightlife'}
+                <div class="px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
 
-              <div class="flex items-center flex-auto w-full justify-items-stretch">
-                <button
-                  class="w-1/4 py-3 mx-1 text-sm text-white transition-all bg-blue-600 rounded md:text-md dark:bg-gray-700 md:px-9"
-                  >Food</button
-                >
-                <button
-                  class="w-1/4 py-3 mx-1 text-sm text-white transition-all bg-blue-600 rounded md:text-md dark:bg-gray-700 md:px-9"
-                  >Shopping</button
-                >
-                <button
-                  class="w-1/4 py-3 mx-1 text-sm text-white transition-all bg-blue-600 rounded md:text-md dark:bg-gray-700 md:px-9"
-                  on:click={handleNightLife}>Nightlife</button
-                >
-                <button
-                  class="w-1/4 py-3 mx-1 text-sm text-white transition-all bg-blue-600 rounded md:text-md dark:bg-gray-700 md:px-9"
-                  >Toybox</button
-                >
-              </div>
+                  <h2 class="text-3xl text-white">Nightlife</h2>
+                  <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
+                    Bars, clubs, pubs, special events, and more.
+                  </p>
 
-              <!-- <div class="mt-6 space-y-3">
+                </div>
+              {/if}
 
-                  <button
-                    class="flex items-center mr-3 text-xs text-white"
-                    title="night light"
-                    on:click={handleNightLife}
-                  >
-                    <div class="w-6 h-6 mr-1 text-white">
-                      <FaBeer />
-                    </div>
-                    <span>Night Life</span>
-                  </button>
+              {#if $currentDrawerSlug === 'toybox'}
+                <div class="px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
 
-                  <button
-                    class="flex items-center mr-3 text-xs text-white"
-                    title="night light"
-                    on:click={handleCruiseNight}
-                  >
-                    <div class="w-6 h-6 mr-1 text-white">
-                      <IoIosCar />
-                    </div>
+                  <h2 class="text-3xl text-white">Toybox 🎉</h2>
+                  <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
+                    Random ideas, experiments and layers to play with.
+                  </p>
 
-                    <span>Cruise Night</span>
-                  </button>
+                  <div class="flex items-center justify-items-stretch">
+                    <button
+                      class="flex items-center px-6 py-3 mr-3 text-white border border-blue-400 rounded dark:border-gray-600"
+                      title="night light"
+                      on:click={handleCruiseNight}
+                    >
+                      <div class="w-6 h-6 mr-1 text-white">
+                        <IoIosCar />
+                      </div>
+                      <span>Cruise Night</span>
+                    </button>
 
-                  <button
-                    class="flex items-center mr-3 text-xs text-white"
-                    title="night light"
-                    on:click={handleCruiseNight}
-                  >
-                    <div class="w-6 h-6 mr-1 text-white">
-                      <FaMapMarkedAlt />
-                    </div>
+                    <button
+                      class="flex items-center px-6 py-3 mr-3 text-white border border-blue-400 rounded dark:border-gray-600"
+                      title="night light"
+                    >
+                      <div class="w-6 h-6 mr-1 text-white">
+                        <GiFoodTruck />
+                      </div>
+                      <span>Food Truck Fest</span>
+                    </button>
 
-                    <span>Take a Tour</span>
-                  </button>
-</div> -->
+                    <button
+                      class="flex items-center px-6 py-3 mr-3 text-white border border-blue-400 rounded dark:border-gray-600"
+                      title="night light"
+                    >
+                      <div class="w-6 h-6 mr-1 text-white">
+                        <FaBicycle />
+                      </div>
+                      <span>Bike Race</span>
+                    </button>
+                  </div>
+                </div>
+              {/if}
 
-              <!-- <h3 class="mt-3 mb-2 text-xs text-white uppercase opacity-50">Restaurants</h3> -->
-
-              <!-- <ul class="space-y-3 text-white">
-              <li><a href="/">2894 On Main</a></li>
-              <li><a href="/">LD's BBQ</a></li>
-            </ul> -->
-
-              <!-- <div class="flex items-center my-3 text-white" on:click={() => (leftshowDock = !leftshowDock)}>
-              <div class="w-6 mr-1 text-white">
-                <GiFoodTruck />
-              </div>
-              <span>Food Truck Fest 2022</span>
-            </div> -->
             </div>
           {/if}
         </div>
@@ -348,28 +383,11 @@
     </div>
   {/if}
 
-  <!-- {#if leftshowDock}
-    <div
-      in:fly={{ x: -180, duration: 300 }}
-      out:fly={{ x: -180, duration: 300 }}
-      class="absolute top-0 left-0 z-40 w-64 px-6 text-left bg-gray-800 h-1/2"
-    >
-      <h4 class="mt-3 mb-6 text-white">Food Truck Fest 2022</h4>
-
-			<h5 class="mb-2 text-lg text-white">My Beer Check List</h5>
-			<ul class="space-y-1 text-white">
-				<li><input type="checkbox" /> <span>Elephant</span></li>
-				<li><input type="checkbox" /> <span>Hazy IPA</span></li>
-				<li><input type="checkbox" /> <span>Aloha Double IPA</span></li>
-				<li><input type="checkbox" /> <span>Now That's Local Stout</span></li>
-			</ul>
-    </div>
-  {/if} -->
-
   <Map
     accessToken={apiKey}
     bind:this={mapComponent}
     on:recentre={handleRecenter}
+    on:load={() => console.log('map loaded')}
     options={{ scrollZoom: false, pitch: pitch, bearing: bearing }}
     center={[-88.4051, 42.7853]}
     zoom={13}
@@ -380,41 +398,6 @@
       <GeolocateControl options={{ some: 'control-option' }} on:eventname={eventHandler} />
       <ScaleControl />
     {/if}
-    <!--
-    {#each resturants as { name, lat, lng }}
-      <Marker {lat} {lng}>
-        <div class="w-4 h-4 text-orange-500 active" style="">
-          <FaUtensils />
-        </div>
-
-        <div class="content" slot="popup">
-          <h3 class="mt-2 text-lg font-bold">{name}</h3>
-        </div>
-      </Marker>
-    {/each} -->
-
-    <!-- <Marker lat={ldsbbq[0]} lng={ldsbbq[1]}>
-      <div class="w-4 h-4 text-orange-500 active" style="">
-        <FaUtensils />
-      </div>
-
-      <div class="content" slot="popup">
-        <img
-          src="https://easttroy.org/media/daguerre/2017/03/17/2699ee8b0fe657930de3.jpeg"
-          alt="ldsbbq"
-          class="w-24"
-        />
-        <h3 class="mt-2 text-lg font-bold">LD's BBQ</h3>
-        <p class="">2511 Main St, East Troy, WI 53120</p>
-        <p class="mb-3"><a href="tel:+1-414-610-7675" class="text-lg text-blue-500">(414) 610-7675</a></p>
-        <p class="mb-3">
-          LD’s BBQ serves meats that are slow smoked over 100% Seasoned Oak wood. No corners are cut to get this food
-          to tender and juicy.
-        </p>
-        <p><span class="font-bold">Service options:</span> Dine-in · Curbside pickup · No delivery</p>
-        <p><span class="font-bold">Hours:</span> Closed ⋅ Opens 11AM</p>
-      </div>
-    </Marker> -->
   </Map>
 </div>
 
@@ -438,6 +421,27 @@
     }
     to {
       opacity: 1;
+    }
+  }
+
+  button.mainmenu {
+    @apply font-semibold w-1/4 py-3 mx-1 text-sm transition-all rounded md:text-base md:px-9;
+  }
+  button.mainmenu.active {
+    @apply bg-white text-gray-800 dark:bg-blue-500 dark:text-white;
+  }
+  button.mainmenu.inactive {
+    @apply bg-blue-600 text-white dark:bg-gray-700;
+  }
+
+  .rotate-spin { animation: spin 4s linear infinite; }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
 </style>
