@@ -248,10 +248,10 @@
             > -->
 
             <div class="flex items-center flex-auto w-full justify-items-stretch">
-              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded md:px-9">Food</button>
-              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded md:px-9">Shopping</button>
-              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded md:px-9" on:click={handleNightLife}>Nightlife</button>
-              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded md:px-9">Toybox</button>
+              <button class="w-1/4 py-3 mx-1 text-white transition-all bg-blue-600 rounded dark:bg-gray-700 md:px-9">Food</button>
+              <button class="w-1/4 py-3 mx-1 text-white transition-all bg-blue-600 rounded dark:bg-gray-700 md:px-9">Shopping</button>
+              <button class="w-1/4 py-3 mx-1 text-white transition-all bg-blue-600 rounded dark:bg-gray-700 md:px-9" on:click={handleNightLife}>Nightlife</button>
+              <button class="w-1/4 py-3 mx-1 text-white transition-all bg-blue-600 rounded dark:bg-gray-700 md:px-9">Toybox</button>
             </div>
 
 
