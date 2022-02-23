@@ -311,6 +311,17 @@
                 {/each}
               </div>
 
+              {#if $currentDrawerSlug === 'food'}
+                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
+
+                  <h2 class="text-3xl text-white">Food</h2>
+                  <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
+
+                  </p>
+
+                </div>
+              {/if}
+
               {#if $currentDrawerSlug === 'shopping'}
                 <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
 
