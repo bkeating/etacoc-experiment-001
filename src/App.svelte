@@ -1,47 +1,33 @@
 <script>
   import { onMount } from 'svelte';
   import { fly, fade } from 'svelte/transition';
-  import { Map, Geocoder, Marker, controls } from '@beyonk/svelte-mapbox';
-  import GiFoodTruck from 'svelte-icons/gi/GiFoodTruck.svelte';
-  import FaBeer from 'svelte-icons/fa/FaBeer.svelte';
-  import FaUtensils from 'svelte-icons/fa/FaUtensils.svelte';
+  import { Map, controls } from '@beyonk/svelte-mapbox';
+  // import GiFoodTruck from 'svelte-icons/gi/GiFoodTruck.svelte';
+  // import FaBeer from 'svelte-icons/fa/FaBeer.svelte';
+  // import FaUtensils from 'svelte-icons/fa/FaUtensils.svelte';
   import IoIosMoon from 'svelte-icons/io/IoIosMoon.svelte';
   import IoIosSunny from 'svelte-icons/io/IoIosSunny.svelte';
-  import IoIosCar from 'svelte-icons/io/IoIosCar.svelte';
-  import FaMapMarkedAlt from 'svelte-icons/fa/FaMapMarkedAlt.svelte';
+  // import IoIosCar from 'svelte-icons/io/IoIosCar.svelte';
+  // import FaMapMarkedAlt from 'svelte-icons/fa/FaMapMarkedAlt.svelte';
 
   import Logo from './Logo.svelte';
 
+  import { appearance, showDock, showDrawer } from './store';
+
   const { GeolocateControl, NavigationControl, ScaleControl } = controls;
   let mapComponent;
-  let menuIsOpen = false;
   let isDarkMode = false;
   let showSplash = true;
   let apiKey = 'pk.eyJ1IjoiZmxvd3Bva2UiLCJhIjoiY2t6cmZoNDhoMDBidTJxcGtwemZtbnBubSJ9.rZdMVSfrkFcTmaqFt7TW5A';
   let isRotating = true;
+  let showLogo = false;
+  let introBase = 3000;
 
   $: mapStyle = 'mapbox://styles/mapbox/outdoors-v11';
   $: lng = -88.4051;
   $: lat = 42.7853;
   $: pitch = 0;
   $: bearing = 0;
-
-  let easttroyCenter = [-88.4051, 42.7853];
-  let ldsbbq = [42.79068004431915, -88.39012856713265];
-
-  const resturants = [
-    { name: '2894 on Main', lat: 42.786040458812955, lng: -88.40564587614594 },
-    { name: 'East Troy Brewery', lat: 42.785079842503634, lng: -88.40586045286086 },
-    { name: "Cousin's Subs", lat: 42.78980404142664, lng: -88.39114048982536 },
-    { name: 'Sauced Pizzaria', lat: 42.78565283356933, lng: -88.4054504583307 },
-    { name: 'East Troy House', lat: 42.78535886751739, lng: -88.40614946142921 },
-    { name: "Gus's Drive-in", lng: 42.78411839195984, lat: -88.41752729206067 },
-  ];
-
-  const handleGoToEastTroy = () => {
-    // mapComponent.setCenter([lng,lat], 11);
-    mapComponent?.flyTo({ center: [lng, lat], zoom: 16 });
-  };
 
   // Define this to handle `eventname` events - see [GeoLocate Events](https://docs.mapbox.com/mapbox-gl-js/api/markers/#geolocatecontrol-events)
   function eventHandler(e) {
@@ -52,15 +38,19 @@
 
   onMount(() => {
 
+    // Set appearance on mount. nice for returning users.
+    if ($appearance === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    };
+
     setTimeout(() => {
-      mapComponent?.flyTo({ center: [lng, lat], zoom: 14, bearing: 0, pitch: 60, speed: 0.3, curve: 1 });
-    }, 2000);
+      mapComponent?.flyTo({ center: [lng, lat], zoom: 15, bearing: 0, pitch: 60, speed: 0.3, curve: 0.4 });
+    }, introBase);
 
-    const m = mapComponent.getMap();
-
-    // m.on('load', () => {
-    //   console.log('LOADED!')
-    // });
+    setTimeout(() => showLogo = true, introBase + 5000);
+    setTimeout(() => showDock.set(true), introBase + 9500);
 
     let map = mapComponent?.getMap();
     const ne = [42.84103774367695, -88.49734216528779];
@@ -69,17 +59,20 @@
 
     setTimeout(() => {
       rotateCamera(0);
-    }, 4000);
+    }, introBase + 7800);
   });
 
   const handleOpenMenu = () => {
-    menuIsOpen = !menuIsOpen;
+    showDrawer.update(n => !n);
     showSplash = false;
     isRotating = false;
   };
   const handleNightLife = () => {
-    mapComponent?.flyTo({ center: easttroyCenter, zoom: 15, pitch: 0, bearing: 0, speed: 2, curve: 1 }); // starting point
-    handleAppearanceMode(true); // make it dark
+    setMapStyle('mapbox://styles/mapbox/dark-v10');
+    mapComponent?.flyTo({ center: [-88.4051, 42.7853], zoom: 14, pitch: 30, bearing: 0, speed: 0.5, curve: 1.2 }); // starting point
+    appearance.set('dark');
+    document.documentElement.classList.add('dark');
+    localStorage.theme = 'dark';
   };
 
   function rotateCamera(timestamp) {
@@ -87,7 +80,7 @@
     if (isRotating) {
       // clamp the rotation between 0 -360 degrees
       // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
-      m.rotateTo((timestamp / 600) % 360, { essential: true });
+      m.rotateTo((timestamp / 700) % 360, { essential: true });
       // Request the next frame of the animation.
       requestAnimationFrame(rotateCamera);
     }
@@ -106,22 +99,22 @@
         duration: 0,
       },
       {
-        label: 'East Troy Airport',
-        center: [42.79722849966591, -88.37596611461682].reverse(),
-        zoom: 16,
-        bearing: 0,
-        pitch: 0,
-        rotate: true,
-        duration: 60000,
-      },
-      {
         label: 'Village Square Park',
         center: [42.78477231354394, -88.40545403606905].reverse(),
         zoom: 16,
         bearing: 0,
         pitch: 0,
         rotate: true,
-        duration: 10000,
+        duration: 80000,
+      },
+      {
+        label: 'East Troy Airport',
+        center: [42.79722849966591, -88.37596611461682].reverse(),
+        zoom: 16,
+        bearing: 0,
+        pitch: 0,
+        rotate: true,
+        duration: 160000,
       },
     ];
     // mapComponent?.flyTo({ center: cruiseNightStart, zoom: 18, pitch: 60, bearing: 80, speed: 0.3, curve: 1 });
@@ -158,16 +151,23 @@
   };
 
   const handleAppearanceMode = (mode) => {
+    let s;
     let m = mapComponent?.getMap();
-    let style;
-    if (mode === true) {
-      isDarkMode = mode;
+    if (mode === 'dark') {
+      s = 'mapbox://styles/mapbox/dark-v10';
+      document.documentElement.classList.add('dark');
     } else {
-      isDarkMode = !isDarkMode;
-    }
-    isDarkMode ? (style = 'mapbox://styles/mapbox/dark-v10') : (style = 'mapbox://styles/mapbox/outdoors-v11');
-    m.setStyle(style);
+      s = 'mapbox://styles/mapbox/outdoors-v11';
+      document.documentElement.classList.remove('dark');
+    };
+    appearance.set('light');
+    m.setStyle(s);
   };
+
+  const setMapStyle = (mapBoxUri) => {
+    let map = mapComponent?.getMap();
+    map.setStyle(mapBoxUri);
+  }
 
   const handleRecenter = (e) => {
     // (e) => console.log(e.detail.center.lat, e.detail.center.lng
@@ -179,20 +179,23 @@
 
 <div class="relative w-screen h-full select-none">
   {#if showSplash}
-    <div class="absolute top-0 left-0 z-50 w-screen h-screen bg-white opacity-70" transition:fade>
-      <div class="flex items-center justify-center w-full h-full">
-        <img src="/east-troy-splash.png" alt="East Troy Maps" class="relative -top-40" style="max-width: 73%; animation: fadein 3s;" />
+    <div class="absolute top-0 left-0 z-50 w-screen h-screen bg-white opacity-50" in:fade|local={{ duration: 600, delay: 300 }}>
+      {#if showLogo}
+      <div class="flex items-center justify-center w-full h-full" transition:fade|local={{ duration: 2000 }}>
+        <img src="/east-troy-splash.png" alt="East Troy Maps" class="relative -top-40" style="max-width: 73%; animation: fadein 2s;" />
       </div>
+      {/if}
     </div>
   {/if}
 
-  <div class="absolute transition-all duration-300 left-0 z-50 w-full {menuIsOpen ? 'bottom-0' : 'bottom-4'}">
+  {#if $showDock}
+  <div class="absolute transition-all duration-300 left-0 z-50 w-full {$showDrawer ? 'bottom-0' : 'bottom-4'}" in:fly={{ y: 80, duration: 1000 }} out:fly={{ y: 80, duration: 800 }}>
     <div class="w-full max-w-3xl mx-auto text-center">
       <div
-        class="mx-2 text-center relative transition-all duration-300 ease-in-out overflow-hidden bg-blue-500 shadow-2xl rounded-tl-2xl rounded-tr-2xl {menuIsOpen
+        class="mx-2 text-center relative transition-all duration-300 ease-in-out overflow-hidden bg-blue-500 dark:bg-gray-800 shadow-2xl rounded-tl-2xl rounded-tr-2xl {$showDrawer
           ? 'rounded-br-none rounded-bl-none'
           : 'rounded-bl-2xl rounded-br-2xl'}"
-        style="height: {menuIsOpen ? '300px' : '55px'}"
+        style="height: {$showDrawer ? '300px' : '55px'}"
       >
         <button
           on:click={handleOpenMenu}
@@ -204,46 +207,54 @@
         <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center" />
 
         <div class="absolute top-0 right-2 h-[55px] p-2  flex items-center">
-          <button
-            class="flex items-center mr-3 text-xs text-white"
-            title="night light"
-            on:click={handleAppearanceMode}
-          >
-            <div class="w-6 h-6 ml-1 text-white">
-              {#if isDarkMode}
-                <IoIosMoon />
-              {:else}
-                <IoIosSunny />
-              {/if}
-            </div>
-          </button>
+          {#if !showSplash}
+            <button
+              class="flex items-center mr-3 text-xs text-white"
+              title="night light"
+              on:click={handleAppearanceMode}
+              in:fly={{ x: 80, duration: 300 }} out:fly={{ y: 80, duration: 300 }}
+            >
+              <div class="w-6 h-6 ml-1 text-white">
+                {#if $appearance === 'dark'}
+                  <IoIosMoon />
+                {:else}
+                  <IoIosSunny />
+                {/if}
+              </div>
+            </button>
+          {/if}
         </div>
 
-        {#if menuIsOpen}
+        {#if $showDrawer}
           <div
             in:fly={{ y: 60, duration: 500, delay: 100 }}
             out:fly={{ y: 60, duration: 200 }}
             class="w-full h-full px-3 py-3 pb-32 overflow-x-hidden overflow-y-scroll text-left"
           >
-            <div class="p-3 m-3 mb-6 text-xs text-white border border-blue-100 rounded">
+            <div class="p-3 m-1 mb-6 text-sm text-blue-100 border border-blue-400 rounded dark:border-blue-800 dark:text-gray-400">
               <p>
-                This is an innovation experiment to interact and explore the East Troy area from a geographical
-                perspective. There will be layers of different meta to show/hide as well as community
-                curated content. Geoloco information for East Troy, by East Troy.
+                Welcome to East Troy Maps! This is an innovation experiment in interacting and exploring the East Troy area through an interactive map. There will be layers of different meta to show/hide as well as the ability to contribute your own content. This is a work in progress.
               </p>
             </div>
 
-            <h3 class="mb-2 text-xs text-white uppercase opacity-50">Demos</h3>
+            <!-- <h3 class="mb-2 text-xs text-white uppercase opacity-50">Demos</h3>
             <button on:click={handleGoToEastTroy} class="px-6 py-2 text-sm text-white bg-blue-600 rounded "
               >Village Square Park</button
             >
             <button
               on:click={() => mapComponent?.flyTo({ center: [ldsbbq[1], ldsbbq[0]], zoom: 16 })}
               class="px-6 py-2 text-sm text-white bg-blue-600 rounded ">LD's BBQ</button
-            >
+            > -->
+
+            <div class="flex items-center flex-auto w-full justify-items-stretch">
+              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded px-9">Food</button>
+              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded px-9">Shopping</button>
+              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded px-9" on:click={handleNightLife}>Nightlife</button>
+              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded px-9">Toybox</button>
+            </div>
 
 
-<div class="mt-6 space-y-3">
+            <!-- <div class="mt-6 space-y-3">
 
                   <button
                     class="flex items-center mr-3 text-xs text-white"
@@ -279,7 +290,7 @@
 
                     <span>Take a Tour</span>
                   </button>
-</div>
+</div> -->
 
 
 
@@ -290,7 +301,7 @@
               <li><a href="/">LD's BBQ</a></li>
             </ul> -->
 
-            <!-- <div class="flex items-center my-3 text-white" on:click={() => (leftMenuIsOpen = !leftMenuIsOpen)}>
+            <!-- <div class="flex items-center my-3 text-white" on:click={() => (leftshowDock = !leftshowDock)}>
               <div class="w-6 mr-1 text-white">
                 <GiFoodTruck />
               </div>
@@ -302,7 +313,9 @@
     </div>
   </div>
 
-  <!-- {#if leftMenuIsOpen}
+  {/if}
+
+  <!-- {#if leftshowDock}
     <div
       in:fly={{ x: -180, duration: 300 }}
       out:fly={{ x: -180, duration: 300 }}
@@ -325,15 +338,16 @@
     bind:this={mapComponent}
     on:recentre={handleRecenter}
     options={{ scrollZoom: false, pitch: pitch, bearing: bearing }}
-    center={easttroyCenter}
+    center={[-88.4051, 42.7853]}
     zoom={13}
     style={mapStyle}
   >
-    <Marker {lat} {lng} color="rgb(255,255,255)" label="some marker label" popupClassName="class-name" />
-    <NavigationControl options={{ visualizePitch: true }} />
-    <GeolocateControl options={{ some: 'control-option' }} on:eventname={eventHandler} />
-    <ScaleControl />
-
+    {#if !showSplash}
+      <NavigationControl options={{ visualizePitch: true }} />
+      <GeolocateControl options={{ some: 'control-option' }} on:eventname={eventHandler} />
+      <ScaleControl />
+    {/if}
+<!--
     {#each resturants as { name, lat, lng }}
       <Marker {lat} {lng}>
         <div class="w-4 h-4 text-orange-500 active" style="">
@@ -344,9 +358,9 @@
           <h3 class="mt-2 text-lg font-bold">{name}</h3>
         </div>
       </Marker>
-    {/each}
+    {/each} -->
 
-    <Marker lat={ldsbbq[0]} lng={ldsbbq[1]}>
+    <!-- <Marker lat={ldsbbq[0]} lng={ldsbbq[1]}>
       <div class="w-4 h-4 text-orange-500 active" style="">
         <FaUtensils />
       </div>
@@ -367,7 +381,7 @@
         <p><span class="font-bold">Service options:</span> Dine-in · Curbside pickup · No delivery</p>
         <p><span class="font-bold">Hours:</span> Closed ⋅ Opens 11AM</p>
       </div>
-    </Marker>
+    </Marker> -->
   </Map>
 </div>
 
