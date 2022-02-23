@@ -1,5 +1,4 @@
-import { writable, derived } from 'svelte/store';
-
+import { writable } from 'svelte/store';
 
 /**
  * localStorage definitions; used to store data further below in localStorage
@@ -20,7 +19,7 @@ export const showDrawer = writable(storedShowDrawer);
 export const currentDrawerSlug = writable('');
 
 /**
- * A place where it's OK to be sloppy. GFY.
+ * A place where it's OK to be sloppy. GFY; xo.
  */
 
 export const mapComponent = writable(null);

@@ -12,7 +12,7 @@
 
   import Logo from './Logo.svelte';
 
-  import { appearance, showDock, showDrawer, showSplash } from './store';
+  import { appearance, showDock, showDrawer, showSplash, currentDrawerSlug } from './store';
 
   const { GeolocateControl, NavigationControl, ScaleControl } = controls;
   let mapComponent;
@@ -188,7 +188,7 @@
   {/if}
 
   {#if $showDock}
-  <div class="absolute transition-all duration-300 left-0 z-50 w-full {$showDrawer ? 'bottom-0' : 'bottom-4'}" in:fly={{ y: 80, duration: 1000 }} out:fly={{ y: 80, duration: 800 }}>
+  <div class="absolute transition-all duration-300 left-0 z-50 w-full {$showDrawer ? 'bottom-0' : 'bottom-4'}" in:fly={{ y: 80, duration: 900, elastic: 'elasticInOut' }} out:fly={{ y: 80, duration: 800 }}>
     <div class="w-full max-w-3xl mx-auto text-center">
       <div
         class="mx-2 text-center relative transition-all duration-300 ease-in-out overflow-hidden bg-blue-500 dark:bg-gray-800 shadow-2xl rounded-tl-2xl rounded-tr-2xl {$showDrawer
@@ -210,7 +210,7 @@
             <button
               class="flex items-center mr-3 text-xs text-white"
               title="night light"
-              on:click={handleAppearanceMode}
+              on:click={handleAppearanceMode($appearance === 'dark' ? 'light' : 'dark')}
               in:fly={{ x: 80, duration: 300 }} out:fly={{ y: 80, duration: 300 }}
             >
               <div class="w-6 h-6 ml-1 text-white">
@@ -230,11 +230,13 @@
             out:fly={{ y: 60, duration: 200 }}
             class="w-full h-full px-3 py-3 pb-32 overflow-x-hidden overflow-y-scroll text-left"
           >
-            <div class="p-3 m-1 mb-6 text-sm text-blue-100 border border-blue-400 rounded dark:border-blue-800 dark:text-gray-400">
-              <p>
-                Welcome to East Troy Maps! This is an innovation experiment in exploring the East Troy area through an interactive map. There will be layers of different meta to show/hide as well as the ability to contribute your own content. This is a work in progress.
-              </p>
-            </div>
+            {#if $currentDrawerSlug === ''}
+              <div in:fly={{ y: -180, duration: 100 }} out:fly={{ y: -180, duration: 100 }} class="p-3 m-1 mb-6 text-sm text-blue-100 border border-blue-400 rounded dark:text-gray-500 dark:border-gray-700">
+                <p>
+                  Welcome to East Troy Maps! This is an innovation experiment in exploring the East Troy area through an interactive map. There will be layers of different meta to show/hide as well as the ability to contribute your own content. This is a work in progress.
+                </p>
+              </div>
+            {/if}
 
             <!-- <h3 class="mb-2 text-xs text-white uppercase opacity-50">Demos</h3>
             <button on:click={handleGoToEastTroy} class="px-6 py-2 text-sm text-white bg-blue-600 rounded "
@@ -392,6 +394,10 @@
   html,
   body {
     @apply w-full h-full overflow-hidden;
+  }
+
+  :global(.mapboxgl-map) {
+      height: 100%;
   }
 
   @keyframes fadein {
