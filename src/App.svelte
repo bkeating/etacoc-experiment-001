@@ -216,7 +216,7 @@
           out:fly={{ y: 10, duration: 2000 }}
         >
           <div class="mx-auto" style="width: 100%; max-width: 76%; min-height: 400px;">
-            <div class="relative mx-auto" style="width: 100%; min-width: 200px; max-width: 500px; animation: fadein 2s; top: -15rem;">
+            <div class="relative mx-auto" style="width: 100%; min-width: 200px; max-width: 500px; animation: fadein 2s; top: -5rem;">
               <SplashType fillColor={splashTypeColor} />
             </div>
           </div>
@@ -312,7 +312,7 @@
               </div>
 
               {#if $currentDrawerSlug === 'shopping'}
-                <div class="px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
+                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
 
                   <h2 class="text-3xl text-white">Shopping</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
@@ -323,7 +323,7 @@
               {/if}
 
               {#if $currentDrawerSlug === 'nightlife'}
-                <div class="px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
+                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
 
                   <h2 class="text-3xl text-white">Nightlife</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
@@ -334,7 +334,7 @@
               {/if}
 
               {#if $currentDrawerSlug === 'toybox'}
-                <div class="px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
+                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
 
                   <h2 class="text-3xl text-white">Toybox 🎉</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">

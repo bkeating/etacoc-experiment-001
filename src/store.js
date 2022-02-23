@@ -19,7 +19,7 @@ export const showDrawer = writable(storedShowDrawer);
 export const currentDrawerSlug = writable('');
 
 /**
- * Map/Geo-specific state definitions;
+ * Map / Geo-specific state definitions;
  */
 
 export const mapComponent = writable(null);
