@@ -12,7 +12,7 @@
 
   import Logo from './Logo.svelte';
 
-  import { appearance, showDock, showDrawer, showSplash, currentDrawerSlug } from './store';
+  import { appearance, showDock, showDrawer, showSplash, currentDrawerSlug, mapStyle } from './store';
 
   const { GeolocateControl, NavigationControl, ScaleControl } = controls;
   let mapComponent;
@@ -21,7 +21,6 @@
   let showLogo = false;
   let introBase = 3000;
 
-  $: mapStyle = 'mapbox://styles/mapbox/outdoors-v11';
   $: lng = -88.4051;
   $: lat = 42.7853;
   $: pitch = 0;
@@ -34,34 +33,39 @@
     // do something with `data`, it's the result returned from the mapbox event
   }
 
-  onMount(() => {
+  const easeOutQuint = (t) => 1 - Math.pow(1 - t, 5);
+  const easeInCubic = (t) => t * t * t;
 
-    // Set appearance on mount. nice for returning users.
+  onMount(() => {
+    // This is for returning users whom turned on dark mode in a previous session.
     if ($appearance === 'dark') {
       document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    };
+    }
 
+    // Swoop down on the sqaure, fade in the logo and reveal the Dock.
     setTimeout(() => {
       mapComponent?.flyTo({ center: [lng, lat], zoom: 15, bearing: 0, pitch: 60, speed: 0.3, curve: 0.4 });
     }, introBase);
-
-    setTimeout(() => showLogo = true, introBase + 5000);
-    setTimeout(() => showDock.set(true), introBase + 9500);
+    setTimeout(() => (showLogo = true), introBase + 5000);
+    setTimeout(() => showDock.set(true), introBase + 13000);
 
     let map = mapComponent?.getMap();
     const ne = [42.84103774367695, -88.49734216528779];
     const sw = [42.70040771258098, -88.2800188683067];
-    map?.getMap().setMaxBounds([sw, ne]);
+    map?.getMap().setMaxBounds([sw.reverse(), ne.reverse()]);
 
     setTimeout(() => {
       rotateCamera(0);
-    }, introBase + 7800);
+    }, introBase + 8000);
+
+    setTimeout(() => {
+      setMapStyle('mapbox://styles/mapbox/outdoors-v11');
+    }, introBase + 30000);
   });
 
   const handleOpenMenu = () => {
-    showDrawer.update(n => !n);
+    showDrawer.update((n) => !n);
+    setMapStyle('mapbox://styles/mapbox/outdoors-v11');
     showSplash.set(false);
     isRotating = false;
   };
@@ -78,9 +82,9 @@
     if (isRotating) {
       // clamp the rotation between 0 -360 degrees
       // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
-      m.rotateTo((timestamp / 700) % 360, { essential: true });
+      m.rotateTo((timestamp / 700) % 360);
       // Request the next frame of the animation.
-      requestAnimationFrame(rotateCamera);
+      requestAnimationFrame(rotateCamera, { easing: easeInCubic()});
     }
   }
 
@@ -159,18 +163,17 @@
       appearance.set('light');
       s = 'mapbox://styles/mapbox/outdoors-v11';
       document.documentElement.classList.remove('dark');
-    };
+    }
     m.setStyle(s);
   };
 
   const setMapStyle = (mapBoxUri) => {
     let map = mapComponent?.getMap();
     map.setStyle(mapBoxUri);
-  }
+  };
 
   const handleRecenter = (e) => {
     // (e) => console.log(e.detail.center.lat, e.detail.center.lng
-
   };
 
   // update `money` with `productionPerTick` and set a timeout to call itself after `tickSpeed` ms
@@ -178,67 +181,88 @@
 
 <div class="relative w-screen h-full select-none">
   {#if $showSplash}
-    <div class="absolute top-0 left-0 z-50 w-screen h-screen bg-white opacity-50" in:fade|local={{ duration: 600, delay: 300 }}>
+    <div
+      class="absolute top-0 left-0 z-50 w-screen h-screen bg-white opacity-50"
+      in:fade|local={{ duration: 600, delay: 300 }}
+    >
       {#if showLogo}
-      <div class="flex items-center justify-center w-full h-full" transition:fade|local={{ duration: 2000 }}>
-        <img src="/east-troy-splash.png" alt="East Troy Maps" class="relative -top-40" style="max-width: 73%; animation: fadein 2s;" />
-      </div>
+        <div class="flex items-center justify-center w-full h-full" transition:fade|local={{ duration: 2000 }}>
+          <img
+            src="/east-troy-splash.png"
+            alt="East Troy Maps"
+            class="relative -top-40"
+            style="max-width: 73%; animation: fadein 2s;"
+          />
+        </div>
       {/if}
     </div>
   {/if}
 
   {#if $showDock}
-  <div class="absolute transition-all duration-300 left-0 z-50 w-full {$showDrawer ? 'bottom-0' : 'bottom-4'}" in:fly={{ y: 80, duration: 900, elastic: 'elasticInOut' }} out:fly={{ y: 80, duration: 800 }}>
-    <div class="w-full max-w-3xl mx-auto text-center">
-      <div
-        class="mx-2 text-center relative transition-all duration-300 ease-in-out overflow-hidden bg-blue-500 dark:bg-gray-800 shadow-2xl rounded-tl-2xl rounded-tr-2xl {$showDrawer
-          ? 'rounded-br-none rounded-bl-none'
-          : 'rounded-bl-2xl rounded-br-2xl'}"
-        style="height: {$showDrawer ? '300px' : '55px'}"
-      >
-        <button
-          on:click={handleOpenMenu}
-          class="relative flex items-center justify-center w-10 h-10 m-0 mx-auto mb-3 bg-transparent top-2"
+    <div
+      class="absolute transition-all duration-300 ease-in-out left-0 z-50 w-full {$showDrawer
+        ? 'bottom-0'
+        : 'bottom-4'}"
+      in:fly={{ y: 80, duration: 900 }}
+      out:fly={{ y: 80, duration: 800 }}
+    >
+      <div class="w-full max-w-3xl mx-auto text-center">
+        <div
+          class="mx-2 text-center relative transition-all duration-500 ease-in-out overflow-hidden bg-blue-500 dark:bg-gray-800 rounded-tl-2xl rounded-tr-2xl {$showDrawer
+            ? 'rounded-br-none rounded-bl-none shadow-2xl'
+            : 'rounded-bl-2xl rounded-br-2xl shadow-xl'}"
+          style="height: {$showDrawer ? '300px' : '55px'}"
         >
-          <Logo />
-        </button>
-
-        <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center" />
-
-        <div class="absolute top-0 right-2 h-[55px] p-2  flex items-center">
-          {#if !$showSplash}
-            <button
-              class="flex items-center mr-3 text-xs text-white"
-              title="night light"
-              on:click={handleAppearanceMode($appearance === 'dark' ? 'light' : 'dark')}
-              in:fly={{ x: 80, duration: 300 }} out:fly={{ y: 80, duration: 300 }}
-            >
-              <div class="w-6 h-6 ml-1 text-white">
-                {#if $appearance === 'dark'}
-                  <IoIosMoon />
-                {:else}
-                  <IoIosSunny />
-                {/if}
-              </div>
-            </button>
-          {/if}
-        </div>
-
-        {#if $showDrawer}
-          <div
-            in:fly={{ y: 60, duration: 500, delay: 100 }}
-            out:fly={{ y: 60, duration: 200 }}
-            class="w-full h-full px-3 py-3 pb-32 overflow-x-hidden overflow-y-scroll text-left"
+          <button
+            on:click={handleOpenMenu}
+            class="relative flex items-center justify-center w-10 h-10 m-0 mx-auto mb-3 bg-transparent top-2"
           >
-            {#if $currentDrawerSlug === ''}
-              <div in:fly={{ y: -180, duration: 100 }} out:fly={{ y: -180, duration: 100 }} class="p-3 m-1 mb-6 text-sm text-blue-100 border border-blue-400 rounded dark:text-gray-500 dark:border-gray-700">
-                <p>
-                  Welcome to East Troy Maps! This is an innovation experiment in exploring the East Troy area through an interactive map. There will be layers of different meta to show/hide as well as the ability to contribute your own content. This is a work in progress.
-                </p>
-              </div>
-            {/if}
+            <Logo />
+          </button>
 
-            <!-- <h3 class="mb-2 text-xs text-white uppercase opacity-50">Demos</h3>
+          <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center" />
+
+          <div class="absolute top-0 right-2 h-[55px] p-2  flex items-center">
+            {#if !$showSplash}
+              <button
+                class="flex items-center mr-3 text-xs text-white"
+                title="night light"
+                on:click={handleAppearanceMode($appearance === 'dark' ? 'light' : 'dark')}
+                in:fly={{ x: 80, duration: 300 }}
+                out:fly={{ y: 80, duration: 300 }}
+              >
+                <div class="w-6 h-6 ml-1 text-white">
+                  {#if $appearance === 'dark'}
+                    <IoIosMoon />
+                  {:else}
+                    <IoIosSunny />
+                  {/if}
+                </div>
+              </button>
+            {/if}
+          </div>
+
+          {#if $showDrawer}
+            <div
+              in:fly={{ y: 60, duration: 500, delay: 100 }}
+              out:fly={{ y: 60, duration: 200 }}
+              class="w-full h-full px-3 py-3 pb-32 overflow-x-hidden overflow-y-scroll text-left"
+            >
+              {#if $currentDrawerSlug === ''}
+                <div
+                  in:fly={{ y: -180, duration: 100 }}
+                  out:fly={{ y: -180, duration: 100 }}
+                  class="p-3 m-1 mb-6 text-sm text-blue-100 border border-blue-400 rounded dark:text-gray-500 dark:border-gray-700"
+                >
+                  <p>
+                    Welcome to East Troy Maps! This is an innovation experiment in exploring the East Troy area through
+                    an interactive map. There will be layers of different meta to show/hide as well as the ability to
+                    contribute your own content. This is a work in progress.
+                  </p>
+                </div>
+              {/if}
+
+              <!-- <h3 class="mb-2 text-xs text-white uppercase opacity-50">Demos</h3>
             <button on:click={handleGoToEastTroy} class="px-6 py-2 text-sm text-white bg-blue-600 rounded "
               >Village Square Park</button
             >
@@ -247,15 +271,26 @@
               class="px-6 py-2 text-sm text-white bg-blue-600 rounded ">LD's BBQ</button
             > -->
 
-            <div class="flex items-center flex-auto w-full justify-items-stretch">
-              <button class="w-1/4 py-3 mx-1 text-white transition-all bg-blue-600 rounded dark:bg-gray-700 md:px-9">Food</button>
-              <button class="w-1/4 py-3 mx-1 text-white transition-all bg-blue-600 rounded dark:bg-gray-700 md:px-9">Shopping</button>
-              <button class="w-1/4 py-3 mx-1 text-white transition-all bg-blue-600 rounded dark:bg-gray-700 md:px-9" on:click={handleNightLife}>Nightlife</button>
-              <button class="w-1/4 py-3 mx-1 text-white transition-all bg-blue-600 rounded dark:bg-gray-700 md:px-9">Toybox</button>
-            </div>
+              <div class="flex items-center flex-auto w-full justify-items-stretch">
+                <button
+                  class="w-1/4 py-3 mx-1 text-sm text-white transition-all bg-blue-600 rounded md:text-md dark:bg-gray-700 md:px-9"
+                  >Food</button
+                >
+                <button
+                  class="w-1/4 py-3 mx-1 text-sm text-white transition-all bg-blue-600 rounded md:text-md dark:bg-gray-700 md:px-9"
+                  >Shopping</button
+                >
+                <button
+                  class="w-1/4 py-3 mx-1 text-sm text-white transition-all bg-blue-600 rounded md:text-md dark:bg-gray-700 md:px-9"
+                  on:click={handleNightLife}>Nightlife</button
+                >
+                <button
+                  class="w-1/4 py-3 mx-1 text-sm text-white transition-all bg-blue-600 rounded md:text-md dark:bg-gray-700 md:px-9"
+                  >Toybox</button
+                >
+              </div>
 
-
-            <!-- <div class="mt-6 space-y-3">
+              <!-- <div class="mt-6 space-y-3">
 
                   <button
                     class="flex items-center mr-3 text-xs text-white"
@@ -293,27 +328,24 @@
                   </button>
 </div> -->
 
+              <!-- <h3 class="mt-3 mb-2 text-xs text-white uppercase opacity-50">Restaurants</h3> -->
 
-
-            <!-- <h3 class="mt-3 mb-2 text-xs text-white uppercase opacity-50">Restaurants</h3> -->
-
-            <!-- <ul class="space-y-3 text-white">
+              <!-- <ul class="space-y-3 text-white">
               <li><a href="/">2894 On Main</a></li>
               <li><a href="/">LD's BBQ</a></li>
             </ul> -->
 
-            <!-- <div class="flex items-center my-3 text-white" on:click={() => (leftshowDock = !leftshowDock)}>
+              <!-- <div class="flex items-center my-3 text-white" on:click={() => (leftshowDock = !leftshowDock)}>
               <div class="w-6 mr-1 text-white">
                 <GiFoodTruck />
               </div>
               <span>Food Truck Fest 2022</span>
             </div> -->
-          </div>
-        {/if}
+            </div>
+          {/if}
+        </div>
       </div>
     </div>
-  </div>
-
   {/if}
 
   <!-- {#if leftshowDock}
@@ -341,14 +373,14 @@
     options={{ scrollZoom: false, pitch: pitch, bearing: bearing }}
     center={[-88.4051, 42.7853]}
     zoom={13}
-    style={mapStyle}
+    style={$mapStyle}
   >
     {#if !$showSplash}
       <NavigationControl options={{ visualizePitch: true }} />
       <GeolocateControl options={{ some: 'control-option' }} on:eventname={eventHandler} />
       <ScaleControl />
     {/if}
-<!--
+    <!--
     {#each resturants as { name, lat, lng }}
       <Marker {lat} {lng}>
         <div class="w-4 h-4 text-orange-500 active" style="">
@@ -397,7 +429,7 @@
   }
 
   :global(.mapboxgl-map) {
-      height: 100%;
+    height: 100%;
   }
 
   @keyframes fadein {
