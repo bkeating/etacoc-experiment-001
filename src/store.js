@@ -14,8 +14,10 @@ const storedShowDrawer = localStorage.getItem('showDrawer') || false;
  */
 
 export const appearance = writable(storedAppearance);
+export const showSplash = writable(true);
 export const showDock = writable(storedShowDock);
 export const showDrawer = writable(storedShowDrawer);
+export const currentDrawerSlug = writable('');
 
 /**
  * A place where it's OK to be sloppy. GFY.

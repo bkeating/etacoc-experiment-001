@@ -12,12 +12,10 @@
 
   import Logo from './Logo.svelte';
 
-  import { appearance, showDock, showDrawer } from './store';
+  import { appearance, showDock, showDrawer, showSplash } from './store';
 
   const { GeolocateControl, NavigationControl, ScaleControl } = controls;
   let mapComponent;
-  let isDarkMode = false;
-  let showSplash = true;
   let apiKey = 'pk.eyJ1IjoiZmxvd3Bva2UiLCJhIjoiY2t6cmZoNDhoMDBidTJxcGtwemZtbnBubSJ9.rZdMVSfrkFcTmaqFt7TW5A';
   let isRotating = true;
   let showLogo = false;
@@ -64,7 +62,7 @@
 
   const handleOpenMenu = () => {
     showDrawer.update(n => !n);
-    showSplash = false;
+    showSplash.set(false);
     isRotating = false;
   };
   const handleNightLife = () => {
@@ -154,13 +152,14 @@
     let s;
     let m = mapComponent?.getMap();
     if (mode === 'dark') {
+      appearance.set('dark');
       s = 'mapbox://styles/mapbox/dark-v10';
       document.documentElement.classList.add('dark');
     } else {
+      appearance.set('light');
       s = 'mapbox://styles/mapbox/outdoors-v11';
       document.documentElement.classList.remove('dark');
     };
-    appearance.set('light');
     m.setStyle(s);
   };
 
@@ -178,7 +177,7 @@
 </script>
 
 <div class="relative w-screen h-full select-none">
-  {#if showSplash}
+  {#if $showSplash}
     <div class="absolute top-0 left-0 z-50 w-screen h-screen bg-white opacity-50" in:fade|local={{ duration: 600, delay: 300 }}>
       {#if showLogo}
       <div class="flex items-center justify-center w-full h-full" transition:fade|local={{ duration: 2000 }}>
@@ -207,7 +206,7 @@
         <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center" />
 
         <div class="absolute top-0 right-2 h-[55px] p-2  flex items-center">
-          {#if !showSplash}
+          {#if !$showSplash}
             <button
               class="flex items-center mr-3 text-xs text-white"
               title="night light"
@@ -233,7 +232,7 @@
           >
             <div class="p-3 m-1 mb-6 text-sm text-blue-100 border border-blue-400 rounded dark:border-blue-800 dark:text-gray-400">
               <p>
-                Welcome to East Troy Maps! This is an innovation experiment in interacting and exploring the East Troy area through an interactive map. There will be layers of different meta to show/hide as well as the ability to contribute your own content. This is a work in progress.
+                Welcome to East Troy Maps! This is an innovation experiment in exploring the East Troy area through an interactive map. There will be layers of different meta to show/hide as well as the ability to contribute your own content. This is a work in progress.
               </p>
             </div>
 
@@ -247,10 +246,10 @@
             > -->
 
             <div class="flex items-center flex-auto w-full justify-items-stretch">
-              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded px-9">Food</button>
-              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded px-9">Shopping</button>
-              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded px-9" on:click={handleNightLife}>Nightlife</button>
-              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded px-9">Toybox</button>
+              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded md:px-9">Food</button>
+              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded md:px-9">Shopping</button>
+              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded md:px-9" on:click={handleNightLife}>Nightlife</button>
+              <button class="w-1/4 py-3 mx-1 text-white bg-blue-600 rounded md:px-9">Toybox</button>
             </div>
 
 
@@ -342,7 +341,7 @@
     zoom={13}
     style={mapStyle}
   >
-    {#if !showSplash}
+    {#if !$showSplash}
       <NavigationControl options={{ visualizePitch: true }} />
       <GeolocateControl options={{ some: 'control-option' }} on:eventname={eventHandler} />
       <ScaleControl />
