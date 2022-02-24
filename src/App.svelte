@@ -82,7 +82,7 @@
 
     setTimeout(() => {
       showMarkers = true;
-    }, introBase + 12000);
+    }, introBase + 14000);
 
       // setTimeout(() => {
       //   setTimeout(() => {
@@ -93,11 +93,11 @@
 
   const handleOpenMenu = () => {
     isRotating.set(false);
+    showSplash.set(false);
     showDrawer.update((n) => !n);
   };
 
   const handleMainMenuClick = (label) => {
-    showSplash.set(false);
     currentDrawerSlug.update((n) => (n === label ? '' : label));
   };
 
