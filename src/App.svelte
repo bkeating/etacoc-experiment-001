@@ -234,7 +234,7 @@
       out:fly={{ y: 80, duration: 800 }}
     >
       <div class="w-full max-w-3xl mx-auto text-center">
-        <div
+        <div on:click|once={handleOpenMenu}
           class="mx-2 text-center relative transition-all duration-500 ease-in-out overflow-hidden bg-blue-500 dark:bg-gray-800 rounded-tl-2xl rounded-tr-2xl {$showDrawer
             ? 'rounded-br-none rounded-bl-none shadow-2xl'
             : 'rounded-bl-2xl rounded-br-2xl shadow-xl'}"
@@ -342,7 +342,7 @@
               {/if}
 
               {#if $currentDrawerSlug === 'toybox'}
-                <div class="absolute left-0 w-full px-4 pt-6 overflow-x-hidden overflow-y-scroll" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: -80, duration: 300 }} style="height: calc(100% - 125px);">
+                <div class="absolute left-0 w-full px-4 pt-6 overflow-x-hidden overflow-y-scroll" in:fly={{ x: 80, duration: 300 }} out:fly|local={{ x: -80, duration: 300 }} style="height: calc(100% - 125px);">
 
                   <h2 class="text-3xl text-white">Toybox 🎉</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
