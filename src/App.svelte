@@ -72,23 +72,13 @@
       mapComponent?.flyTo({ center: [lng, lat], zoom: 15, bearing: 0, pitch: 60, speed: 0.3, curve: 0.4 });
     }, introBase);
     setTimeout(() => (showLogo = true), introBase + 5500);
-    setTimeout(() => showDock.set(true), introBase + 15000);
+    setTimeout(() => showDock.set(true), introBase + 11000);
 
 
     setTimeout(() => {
       isRotating.set(true)
       rotateCamera(0);
-    }, introBase + 11000);
-
-    setTimeout(() => {
-      showMarkers = true;
-    }, introBase + 14000);
-
-      // setTimeout(() => {
-      //   setTimeout(() => {
-      //     splashTypeColor = '#000';
-      //   }, 500);
-      // }, introBase + 30000);
+    }, introBase + 10000);
   });
 
   const handleOpenMenu = () => {
@@ -99,6 +89,9 @@
 
   const handleMainMenuClick = (label) => {
     currentDrawerSlug.update((n) => (n === label ? '' : label));
+    if (label === 'food') {
+      showMarkers = true;
+    };
   };
 
   const handleNightLife = () => {
@@ -115,8 +108,8 @@
   $: rotateCamera = (timestamp) => {
     let m = mapComponent?.getMap();
     if ($isRotating) {
-      m.rotateTo((timestamp / 700) % 360);
-      requestAnimationFrame(rotateCamera, { easing: easeInOutCirc });
+      m.rotateTo((timestamp / 400) % 360, { easing: easeInQuad });
+      requestAnimationFrame(rotateCamera);
     };
   };
 
@@ -220,7 +213,7 @@
         <div
           class="flex items-center justify-center w-full h-full"
           in:fly|local={{ y: -80, duration: 3000 }}
-          out:fly={{ y: 10, duration: 2000 }}
+          out:fly={{ y: 10, duration: 800 }}
         >
           <div class="mx-auto" style="width: 100%; max-width: 76%; min-height: 400px;">
             <div class="relative mx-auto" style="width: 100%; min-width: 200px; max-width: 500px; animation: fadein 2s; top: -5rem;">
@@ -251,7 +244,7 @@
             on:click={handleOpenMenu}
             class="relative flex items-center justify-center w-10 h-10 m-0 mx-auto mb-3 bg-transparent top-2"
           >
-            <Logo class="w-10 h-10" />
+            <Logo />
           </button>
 
           <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center">
@@ -292,9 +285,9 @@
               out:fly|local={{ y: 60, duration: 200 }}
               class="w-full h-full px-3 py-3 overflow-x-hidden overflow-y-scroll text-left"
             >
-              <div class="transition-all overflow-hidden {$currentDrawerSlug === '' ? 'h-[115px]' : 'h-0'}">
+              <div class="transition-all overflow-hidden {$currentDrawerSlug === '' ? 'h-[125px] md:h-[100px]' : 'h-0'}">
                 <div
-                  class="p-3 text-sm text-blue-100 border border-blue-400 rounded dark:text-gray-500 dark:border-gray-700 transition-color"
+                  class="h-full p-3 text-sm text-blue-100 border border-blue-400 rounded dark:text-gray-400 dark:border-gray-700 transition-color"
                 >
                   <p>
                     Welcome to East Troy Maps! This is an innovation experiment in exploring the East Troy area through
@@ -304,7 +297,7 @@
                 </div>
               </div>
 
-              <div class="z-50 flex items-center flex-auto w-full my-1 transition-all duration-500 bg-blue-500 justify-items-stretch dark:bg-gray-800">
+              <div class="flex items-center flex-auto w-full mt-3 mb-1 transition-all duration-500 bg-blue-500 justify-items-stretch dark:bg-gray-800">
                 {#each mainMenu as { label, slug }}
                   <button
                     class="mainmenu {$currentDrawerSlug === slug ? 'active' : 'inactive'}"
@@ -349,16 +342,16 @@
               {/if}
 
               {#if $currentDrawerSlug === 'toybox'}
-                <div class="absolute left-0 w-full px-4 pt-3 overflow-x-hidden overflow-y-scroll" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: -80, duration: 300 }} style="height: calc(100% - 145px);">
+                <div class="absolute left-0 w-full px-4 pt-6 overflow-x-hidden overflow-y-scroll" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: -80, duration: 300 }} style="height: calc(100% - 125px);">
 
                   <h2 class="text-3xl text-white">Toybox 🎉</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
                     Random ideas, experiments and layers to play with.
                   </p>
 
-                  <div class="flex items-center mb-6 justify-items-stretch">
+                  <div class="flex flex-wrap items-center mb-6 space-y-2 justify-items-stretch md:space-y-0">
                     <button
-                      class="flex items-center px-6 py-3 mr-3 text-white border border-blue-400 rounded dark:border-gray-600"
+                      class="flex items-center w-2/3 px-6 py-3 mr-3 text-white border border-blue-400 rounded md:w-auto dark:border-gray-600"
                       title="night light"
                       on:click={handleCruiseNight}
                     >
@@ -369,7 +362,7 @@
                     </button>
 
                     <button
-                      class="flex items-center px-6 py-3 mr-3 text-white border border-blue-400 rounded dark:border-gray-600"
+                      class="flex items-center w-2/3 px-6 py-3 mr-3 text-white border border-blue-400 rounded md:w-auto dark:border-gray-600"
                       title="night light"
                     >
                       <div class="w-6 h-6 mr-1 text-white">
@@ -379,7 +372,7 @@
                     </button>
 
                     <button
-                      class="flex items-center px-6 py-3 mr-3 text-white border border-blue-400 rounded dark:border-gray-600"
+                      class="flex items-center w-2/3 px-6 py-3 mr-3 text-white border border-blue-400 rounded md:w-auto dark:border-gray-600"
                       title="night light"
                     >
                       <div class="w-6 h-6 mr-1 text-white">
@@ -515,5 +508,12 @@
     to {
       transform: rotate(360deg);
     }
+  }
+
+  :global(.mapboxgl-ctrl-logo) {
+    opacity: 0;
+  }
+  :global(.mapboxgl-ctrl-attrib) {
+    opacity: 0;
   }
 </style>

@@ -2,7 +2,7 @@
   export let fillColor = 'white';
 </script> -->
 
-<svg viewBox="0 0 283 191" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg class="w-full h-full" viewBox="0 0 283 191" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <g id="w" transform="translate(-8.000000, -55.000000)" fill="white" fill-rule="nonzero">
       <g id="l" transform="translate(8.000000, 55.000000)">
         <polygon points="141.30029 37.5234783 282.60058 37.5234783 145.375072 1.00173913 141.30029 0 137.225507 1.00173913 0 37.5234783" />
