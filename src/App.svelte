@@ -425,7 +425,6 @@
     {/if}
 
     {#if showMarkers}
-      <Marker {lat} {lng} color="rgb(255,255,255)" label="some marker label" popupClassName="class-name" />
       {#each resturants as { name, lat, lng }}
         <Marker {lat} {lng}>
           <div class="w-4 h-4 text-orange-500 active" style="">
