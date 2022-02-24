@@ -1,10 +1,10 @@
 <script>
   import { onMount } from 'svelte';
   import { fly, fade } from 'svelte/transition';
-  import { Map, controls } from '@beyonk/svelte-mapbox';
+  import { Map, Marker, controls } from '@beyonk/svelte-mapbox';
   import GiFoodTruck from 'svelte-icons/gi/GiFoodTruck.svelte';
   // import FaBeer from 'svelte-icons/fa/FaBeer.svelte';
-  // import FaUtensils from 'svelte-icons/fa/FaUtensils.svelte';
+  import FaUtensils from 'svelte-icons/fa/FaUtensils.svelte';
   import IoIosMoon from 'svelte-icons/io/IoIosMoon.svelte';
   import IoIosSunny from 'svelte-icons/io/IoIosSunny.svelte';
   import IoIosCar from 'svelte-icons/io/IoIosCar.svelte';
@@ -16,6 +16,7 @@
   import Logo from './Logo.svelte';
 
   import { appearance, showDock, showDrawer, showSplash, currentDrawerSlug, mapStyle, isRotating } from './store';
+  import { ldsbbq, resturants } from './data';
 
   const { GeolocateControl, NavigationControl, ScaleControl } = controls;
   let mapComponent;
@@ -23,6 +24,7 @@
   let showLogo = false;
   let introBase = 3000;
   let splashTypeColor = 'white';
+  let showMarkers = false;
 
   $: lng = -88.4051;
   $: lat = 42.7853;
@@ -77,6 +79,10 @@
       isRotating.set(true)
       rotateCamera(0);
     }, introBase + 11000);
+
+    setTimeout(() => {
+      showMarkers = true;
+    }, introBase + 12000);
 
       // setTimeout(() => {
       //   setTimeout(() => {
@@ -416,6 +422,44 @@
       <NavigationControl options={{ visualizePitch: true }} />
       <GeolocateControl options={{ some: 'control-option' }} on:eventname={eventHandler} />
       <ScaleControl />
+    {/if}
+
+    {#if showMarkers}
+      <Marker {lat} {lng} color="rgb(255,255,255)" label="some marker label" popupClassName="class-name" />
+      {#each resturants as { name, lat, lng }}
+        <Marker {lat} {lng}>
+          <div class="w-4 h-4 text-orange-500 active" style="">
+            <FaUtensils />
+          </div>
+
+          <div class="content" slot="popup">
+            <h3 class="mt-2 text-lg font-bold">{name}</h3>
+          </div>
+        </Marker>
+      {/each}
+
+      <Marker lat={ldsbbq[0]} lng={ldsbbq[1]}>
+        <div class="w-4 h-4 text-orange-500 active" style="">
+          <FaUtensils />
+        </div>
+
+        <div class="content" slot="popup">
+          <img
+            src="https://easttroy.org/media/daguerre/2017/03/17/2699ee8b0fe657930de3.jpeg"
+            alt="ldsbbq"
+            class="w-24"
+          />
+          <h3 class="mt-2 text-lg font-bold">LD's BBQ</h3>
+          <p class="">2511 Main St, East Troy, WI 53120</p>
+          <p class="mb-3"><a href="tel:+1-414-610-7675" class="text-lg text-blue-500">(414) 610-7675</a></p>
+          <p class="mb-3">
+            LD’s BBQ serves meats that are slow smoked over 100% Seasoned Oak wood. No corners are cut to get this food
+            to tender and juicy.
+          </p>
+          <p><span class="font-bold">Service options:</span> Dine-in · Curbside pickup · No delivery</p>
+          <p><span class="font-bold">Hours:</span> Closed ⋅ Opens 11AM</p>
+        </div>
+      </Marker>
     {/if}
   </Map>
 </div>
