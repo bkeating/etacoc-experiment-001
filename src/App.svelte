@@ -254,9 +254,19 @@
             <Logo class="w-10 h-10" />
           </button>
 
-          <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center" />
+          <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center">
+
+
+
+          </div>
 
           <div class="absolute top-0 right-2 h-[55px] p-2  flex items-center">
+            <!-- <div class="flex items-center mr-4 space-x-1">
+              <div class="w-4 h-4 bg-orange-500 border border-white rounded-full" />
+              <div class="w-4 h-4 bg-green-500 border border-white rounded-full" />
+              <div class="w-4 h-4 bg-gray-500 border border-white rounded-full" />
+            </div> -->
+
             {#if !$showSplash}
               <button
                 class="flex items-center mr-3 text-xs text-white"
@@ -306,7 +316,7 @@
               </div>
 
               {#if $currentDrawerSlug === 'food'}
-                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
+                <div class="absolute px-4 mt-3" in:fly={{ x: -80, duration: 300 }} out:fly={{ x: -80, duration: 300 }}>
 
                   <h2 class="text-3xl text-white">Food</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
@@ -317,7 +327,7 @@
               {/if}
 
               {#if $currentDrawerSlug === 'shopping'}
-                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
+                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: -80, duration: 300 }}>
 
                   <h2 class="text-3xl text-white">Shopping</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
@@ -328,7 +338,7 @@
               {/if}
 
               {#if $currentDrawerSlug === 'nightlife'}
-                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
+                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: -80, duration: 300 }}>
 
                   <h2 class="text-3xl text-white">Nightlife</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
@@ -339,7 +349,7 @@
               {/if}
 
               {#if $currentDrawerSlug === 'toybox'}
-                <div class="absolute left-0 w-full px-4 pt-3 overflow-x-hidden overflow-y-scroll" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }} style="height: calc(100% - 145px);">
+                <div class="absolute left-0 w-full px-4 pt-3 overflow-x-hidden overflow-y-scroll" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: -80, duration: 300 }} style="height: calc(100% - 145px);">
 
                   <h2 class="text-3xl text-white">Toybox 🎉</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
