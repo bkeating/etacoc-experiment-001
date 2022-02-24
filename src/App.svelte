@@ -86,6 +86,7 @@
   });
 
   const handleOpenMenu = () => {
+    isRotating.set(false);
     showDrawer.update((n) => !n);
   };
 
@@ -118,7 +119,7 @@
       {
         label: "Gus's Drive-in",
         center: [42.783958493217334, -88.41788905454426].reverse(),
-        zoom: 18,
+        zoom: 17,
         bearing: 80,
         pitch: 60,
         rotate: false,
@@ -127,7 +128,7 @@
       {
         label: 'Village Square Park',
         center: [42.78477231354394, -88.40545403606905].reverse(),
-        zoom: 16,
+        zoom: 19,
         bearing: 0,
         pitch: 0,
         rotate: true,
@@ -244,25 +245,12 @@
             on:click={handleOpenMenu}
             class="relative flex items-center justify-center w-10 h-10 m-0 mx-auto mb-3 bg-transparent top-2"
           >
-            <Logo />
+            <Logo class="w-10 h-10" />
           </button>
 
           <div class="absolute top-0 left-2 h-[55px] p-2  flex items-center" />
 
           <div class="absolute top-0 right-2 h-[55px] p-2  flex items-center">
-              <button
-                class="flex items-center mr-3 text-xs text-white"
-                title="Orbit"
-                on:click={() => {isRotating.update(n => n = !$isRotating); rotateCamera(0); }}
-                in:fly={{ x: 80, duration: 300 }}
-                out:fly={{ y: 80, duration: 300 }}
-              >
-                <div class="w-6 h-6 ml-1">
-                  <div class="text-blue-300 dark:text-gray-500 {$isRotating ? 'rotate-spin' : ''}">
-                    <MdRefresh />
-                  </div>
-                </div>
-              </button>
             {#if !$showSplash}
               <button
                 class="flex items-center mr-3 text-xs text-white"
@@ -286,11 +274,11 @@
             <div
               in:fly={{ y: 60, duration: 500, delay: 100 }}
               out:fly|local={{ y: 60, duration: 200 }}
-              class="w-full h-full px-3 py-3 pb-32 overflow-x-hidden overflow-y-scroll text-left"
+              class="w-full h-full px-3 py-3 overflow-x-hidden overflow-y-scroll text-left"
             >
               <div class="transition-all overflow-hidden {$currentDrawerSlug === '' ? 'h-[115px]' : 'h-0'}">
                 <div
-                  class="p-3 m-1 text-sm text-blue-100 border border-blue-400 rounded dark:text-gray-500 dark:border-gray-700 transition-color"
+                  class="p-3 text-sm text-blue-100 border border-blue-400 rounded dark:text-gray-500 dark:border-gray-700 transition-color"
                 >
                   <p>
                     Welcome to East Troy Maps! This is an innovation experiment in exploring the East Troy area through
@@ -300,7 +288,7 @@
                 </div>
               </div>
 
-              <div class="sticky top-0 z-50 flex items-center flex-auto w-full pb-2 mt-3 transition-all duration-500 bg-blue-500 justify-items-stretch dark:bg-gray-800">
+              <div class="z-50 flex items-center flex-auto w-full my-1 transition-all duration-500 bg-blue-500 justify-items-stretch dark:bg-gray-800">
                 {#each mainMenu as { label, slug }}
                   <button
                     class="mainmenu {$currentDrawerSlug === slug ? 'active' : 'inactive'}"
@@ -345,14 +333,14 @@
               {/if}
 
               {#if $currentDrawerSlug === 'toybox'}
-                <div class="absolute px-4 mt-3" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }}>
+                <div class="absolute left-0 w-full px-4 pt-3 overflow-x-hidden overflow-y-scroll" in:fly={{ x: 80, duration: 300 }} out:fly={{ x: 80, duration: 300 }} style="height: calc(100% - 145px);">
 
                   <h2 class="text-3xl text-white">Toybox 🎉</h2>
                   <p class="mt-2 mb-4 text-sm text-white opacity-80 dark:text-gray-400">
                     Random ideas, experiments and layers to play with.
                   </p>
 
-                  <div class="flex items-center justify-items-stretch">
+                  <div class="flex items-center mb-6 justify-items-stretch">
                     <button
                       class="flex items-center px-6 py-3 mr-3 text-white border border-blue-400 rounded dark:border-gray-600"
                       title="night light"
@@ -384,6 +372,26 @@
                       <span>Bike Race</span>
                     </button>
                   </div>
+
+                  <button
+                    class="flex items-center mr-3 text-xs text-white"
+                    title="Orbit"
+                    on:click={() => {isRotating.update(n => n = !$isRotating); rotateCamera(0); }}
+                    in:fly={{ x: 80, duration: 300 }}
+                    out:fly={{ y: 80, duration: 300 }}
+                  >
+                    <div class="flex items-center">
+                    <div class="w-6 h-6 ml-1">
+                      <div class="text-blue-300 dark:text-gray-500 {$isRotating ? 'rotate-spin' : ''}">
+                        <MdRefresh />
+                      </div>
+                    </div>
+                    <div class="pl-1">
+                      Rotate Camera
+                    </div>
+                    </div>
+                  </button>
+
                 </div>
               {/if}
 
